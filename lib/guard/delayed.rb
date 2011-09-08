@@ -3,7 +3,7 @@ require 'guard/guard'
 
 module Guard
   class Delayed < Guard
-    
+
     # Allowable options are:
     # :environment  e.g. 'test'
     # :min_priority e.g. 2
@@ -14,14 +14,14 @@ module Guard
     # :monitor                    Start monitor process.
     # :sleep-delay N              Amount of time to sleep in seconds when no jobs are found
     # :prefix NAME                String to be prefixed to worker process names
-    
+
     def initialize(watchers = [], options = {})
       @options = options
       super
     end
 
     def start
-      system(cmd, 'stop')
+      system("#{cmd} stop")
       UI.info "Starting up delayed_job..."
       args = "start"
       args << " --min-priority #{@options[:min_priority]}" if @options[:min_priority]
@@ -32,13 +32,13 @@ module Guard
       args << " --monitor" if @options[:monitor]
       args << " --sleep-delay #{@options[:sleep_delay]}" if @options[:sleep_delay]
       args << " --prefix #{@options[:prefix]} " if @options[:prefix]
-      system(cmd, args)
+      system("#{cmd} #{args}")
     end
 
     # Called on Ctrl-C signal (when Guard quits)
     def stop
       UI.info "Stopping delayed_job..."
-      system(cmd, 'stop')
+      system("#{cmd} stop")
     end
 
     # Called on Ctrl-Z signal
@@ -58,16 +58,16 @@ module Guard
     def run_on_change(paths)
       restart
     end
-    
+
     private
-    
+
     def restart
-      system(cmd, 'restart')
+      system("#{cmd} restart")
     end
-    
+
     def cmd
       command = "script/delayed_job"
-      command = "RAILS_ENV=#{@options[:environment]} #{command}" if @options[:environment]
+      command = "env RAILS_ENV=#{@options[:environment]} #{command}" if @options[:environment]
       command
     end
   end
